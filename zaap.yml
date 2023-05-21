@@ -1,0 +1,137 @@
+{% set gbyte_ram %}{{ (os.ram / (1024*1024*1024)) | round }}{% endset %}
+
+{% if gbyte_ram >= 16 %}
+  {% set default_wakfu_java_xms = "2G" %}
+  {% set default_wakfu_java_xmx = "4G" %}
+{% elif gbyte_ram >= 8 %}
+  {% set default_wakfu_java_xms = "2G" %}
+  {% set default_wakfu_java_xmx = "2G" %}
+{% elif gbyte_ram >= 4 %}
+  {% set default_wakfu_java_xms = "1G" %}
+  {% set default_wakfu_java_xmx = "2G" %}
+{% else %}
+  {% set default_wakfu_java_xms = "512m" %}
+  {% set default_wakfu_java_xmx = "768m" %}
+{% endif %}
+
+{% set default_wakfu_java_options = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -Djava.net.preferIPv4Stack=true -Dsun.awt.noerasebackground=true -Dsun.java2d.noddraw=true -Djogl.disable.openglarbcontext -Dsun.java2d.uiScale.enabled=false" %}
+{% set partner_default = "default" %}
+{% set partner_steam = "steam" %}
+
+maxInstances: true
+fragments:
+  - "common"
+  - "zaap"
+  - "licenses"
+  - "classic"
+  - "64"
+
+arguments:
+  - "{{ game.settings.language }}"
+
+{% if game.settings.advanced_settings %}
+  - "{{ game.settings.java_xms }}"
+  - "{{ game.settings.java_xmx }}"
+  - "{{ game.settings.java_options }}"
+{% else %}
+  - "{{ default_wakfu_java_xms }}"
+  - "{{ default_wakfu_java_xmx }}"
+  - "{{ default_wakfu_java_options }}"
+{% endif %}
+
+
+{% if zaap.STEAM_VERSION %}
+  - "{{ partner_steam }}"
+{% else %}
+  - "{{ partner_default }}"
+{% endif %}
+  - "natives/"
+
+{% if game.settings.debug_log %}
+  - '{{ env.ZAAP_LOGS_PATH }}/wakfu-debug-{{ env.ZAAP_INSTANCE_ID }}.log'
+{% else %}
+  - "NUL"
+{% endif %}
+
+settings:
+  - name: "language"
+{% if zaap.LANGUAGE in ['fr', 'en', 'es', 'pt','it'] %}
+    default: "{{ zaap.LANGUAGE }}"
+{% else %}
+    default: "en"
+{% endif %}
+    label:
+      en: "Language"
+      fr: "Langage"
+      es: "Lengua"
+      pt: "Idioma"
+      it: "Lingua"
+    type: select
+    options:
+      - label: "Français"
+        value: "fr"
+
+      - label: "English"
+        value: "en"
+
+      - label: "Español"
+        value: "es"
+
+      - label: "Italiano"
+        value: "it"
+
+      - label: "Português"
+        value: "pt"
+
+  - name: "advanced_settings"
+    default: false
+    label:
+      en: "Display advanced user settings"
+      fr: "Afficher les paramètres utilisateurs avancés"
+      es: "Mostrar los parámetros usuarios avanzados"
+      pt: "Exibir configurações para usuários avançados"
+      it: "Mostra impostazioni utente avanzate"
+    type: checkbox
+
+{% if game.settings.advanced_settings %}
+  - name: "java_xms"
+    default: "{{ default_wakfu_java_xms }}"
+    label:
+      en: "Java XMS (XMS < XMX)"
+      fr: "Java XMS (XMS < XMX)"
+      es: "Java XMS (XMS < XMX)"
+      pt: "Java XMS (XMS < XMX)"
+      it: "Java XMS (XMS < XMX)"
+    type: text
+
+  - name: "java_xmx"
+    default: "{{ default_wakfu_java_xmx }}"
+    label:
+      en: "Java XMX (XMS < XMX)"
+      fr: "Java XMX (XMS < XMX)"
+      es: "Java XMX (XMS < XMX)"
+      pt: "Java XMX (XMS < XMX)"
+      it: "Java XMX (XMS < XMX)"
+    type: text
+
+  - name: "java_options"
+    default: "{{ default_wakfu_java_options }}"
+    label:
+      en: "Java options (do not touch if you don't know what you're doing)"
+      fr: "Options Java (ne pas toucher si vous ne savez pas ce que vous faites)"
+      es: "Opciones Java (no tocar si no se sabe lo que se hace)"
+      pt: "Opções Java (não mexa se não sabe o que está fazendo)"
+      it: "Opzioni Java (non toccare se non sai cosa stai facendo)"
+    type: text
+{% endif %}
+  - name: "debug_log"
+    default: false
+    label:
+      en: "Enable debug logging"
+      fr: "Activer les logs de debug"
+      es: "Activar el registro de depuración"
+      pt: "Habilitar o registo de depuração"
+      it: "Attiva debug logging"
+    type: checkbox
+
+licensesFolder: licenses/3rd-party-licenses/
