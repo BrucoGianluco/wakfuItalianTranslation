@@ -1,7 +1,7 @@
 
 # Italian Translation Wakfu Ankama
 
-Italian Translation Wakfu Ankama private repo
+Italian Translation Wakfu Ankama
 
 
 ## Authors
